@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowPeople Chat</title>
+<style>
+  body { font-family: Arial, sans-serif; margin:0; padding:0; }
+  #chat-widget { position: fixed; bottom: 20px; right: 20px; background: white; border: 1px solid #ccc; border-radius: 8px; padding: 10px; width: 300px; }
+  #chat-log { height: 200px; overflow-y: auto; font-size: 14px; margin-bottom: 10px; border: 1px solid #ddd; padding: 5px; }
+  #chat-input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+  #chat-send { margin-top: 5px; width: 100%; background: #0073e6; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="chat-widget">
+  <div id="chat-log"></div>
+  <input type="text" id="chat-input" placeholder="Typ je vraag...">
+  <button id="chat-send">Verstuur</button>
+</div>
+
+<script>
+(function(){
+  const apiURL = "https://flowpeople-ertn.vercel.app/api/chat";
+  const input = document.getElementById("chat-input");
+  const log = document.getElementById("chat-log");
+  const btn = document.getElementById("chat-send");
+
+  async function sendMessage(){
+    const userMessage = input.value.trim();
+    if(!userMessage) return;
+
+    log.innerHTML += `<div><strong>Jij:</strong> ${userMessage}</div>`;
+    input.value = "";
+    log.scrollTop = log.scrollHeight;
+
+    try {
+      const res = await fetch(apiURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage })
+      });
+
+      const data = await res.json();
+      if (data.reply) {
+        log.innerHTML += `<div><strong>AI:</strong> ${data.reply}</div>`;
+      } else {
+        log.innerHTML += `<div><em>Geen antwoord ontvangen...</em></div>`;
+      }
+    } catch (err) {
+      console.error(err);
+      log.innerHTML += `<div><em>Server niet bereikbaar...</em></div>`;
+    }
+
+    log.scrollTop = log.scrollHeight;
+  }
+
+  btn.addEventListener("click", sendMessage);
+  input.addEventListener("keypress", function(e){
+    if(e.key === "Enter") sendMessage();
+  });
+})();
+</script>
+</body>
+</html>
