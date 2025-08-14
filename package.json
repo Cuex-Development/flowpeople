@@ -1,0 +1,8 @@
+{
+  "name": "hubspot-chat-api",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "openai": "^4.0.0"
+  }
+}
